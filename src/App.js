@@ -5,212 +5,339 @@ import { TransformerModel } from './models/TransformerModel';
 import { GANModel } from './models/GANModel';
 import './App.css';
 
-// 12개 인스턴스 정의
 const MODEL_GROUPS = [
   {
     type: 'CNN',
+    color: '#3b82f6',
+    complexity: 'O(H·W·C·K²)',
     instances: [
       new CNNModel("CNN_Edge_Detector", 16, 3),
       new CNNModel("CNN_Vision_Pro", 64, 3),
       new CNNModel("CNN_Medical_Scans", 128, 5),
     ],
     inputFields: [
-      { key: 'width', label: '이미지 가로 (px)', defaultValue: 224 },
-      { key: 'height', label: '이미지 세로 (px)', defaultValue: 224 },
-      { key: 'channels', label: '채널 수 (RGB=3)', defaultValue: 3 },
+      { key: 'width', label: '가로 (px)', defaultValue: 224 },
+      { key: 'height', label: '세로 (px)', defaultValue: 224 },
+      { key: 'channels', label: '채널 수', defaultValue: 3 },
     ],
     getInput: (vals) => [Number(vals.width), Number(vals.height), Number(vals.channels)],
   },
   {
     type: 'RNN',
+    color: '#22c55e',
+    complexity: 'O(T·H²)',
     instances: [
       new RNNModel("RNN_Small_Bot", 64),
       new RNNModel("RNN_Standard_Chat", 256),
       new RNNModel("RNN_Heavy_Translator", 1024),
     ],
     inputFields: [
-      { key: 'sentence', label: '문장 입력 (스페이스로 토큰 분리)', defaultValue: 'I love deep learning' },
+      { key: 'sentence', label: '문장 입력', defaultValue: 'I love deep learning' },
     ],
     getInput: (vals) => vals.sentence.trim().split(' '),
   },
   {
     type: 'Transformer',
+    color: '#f59e0b',
+    complexity: 'O(T²·H)',
     instances: [
       new TransformerModel("Transformer_Nano", 4, 2, 128),
       new TransformerModel("Transformer_Base", 8, 6, 512),
       new TransformerModel("Transformer_LLM", 16, 12, 1024),
     ],
     inputFields: [
-      { key: 'sentence', label: '문장 입력 (스페이스로 토큰 분리)', defaultValue: 'The quick brown fox jumps' },
+      { key: 'sentence', label: '문장 입력', defaultValue: 'The quick brown fox jumps' },
     ],
     getInput: (vals) => vals.sentence.trim().split(' '),
   },
   {
     type: 'GAN',
+    color: '#ef4444',
+    complexity: 'O(P·B)',
     instances: [
       new GANModel("GAN_Pixel_Art", 50, 128, 784),
       new GANModel("GAN_DeepFake_Base", 100, 256, 1024),
       new GANModel("GAN_HighRes_Gen", 256, 1024, 4096),
     ],
     inputFields: [
-      { key: 'count', label: '생성할 이미지 개수', defaultValue: 5 },
+      { key: 'count', label: '생성할 이미지 수', defaultValue: 5 },
     ],
     getInput: (vals) => Array(Number(vals.count)).fill('img'),
   },
 ];
 
-const TYPE_COLORS = {
-  CNN: '#2563eb',
-  RNN: '#16a34a',
-  Transformer: '#d97706',
-  GAN: '#dc2626',
-};
+const MAX_CONSOLE_LINES = 20;
 
 export default function App() {
-  const [modal, setModal] = useState(null); // { group, instance }
+  const [selected, setSelected] = useState(null);
   const [inputVals, setInputVals] = useState({});
   const [result, setResult] = useState(null);
+  const [consoleLogs, setConsoleLogs] = useState([
+    { text: '> AI Model OOP Visualizer v1.0.0', color: '#22c55e' },
+    { text: '> 12 instances loaded successfully.', color: '#94a3b8' },
+    { text: '> Click an instance card to begin.', color: '#94a3b8' },
+  ]);
+  const [animatedBars, setAnimatedBars] = useState(false);
 
-  const openModal = (group, instance) => {
-    const defaults = {};
-    group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
-    setModal({ group, instance });
-    setInputVals(defaults);
-    setResult(null);
+  const addLogs = (newLogs) => {
+    setConsoleLogs(prev => [...prev, ...newLogs].slice(-MAX_CONSOLE_LINES));
   };
 
-  const closeModal = () => {
-    setModal(null);
+  const handleCardClick = (group, instance) => {
+    const defaults = {};
+    group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
+    setSelected({ group, instance });
+    setInputVals(defaults);
     setResult(null);
+    setAnimatedBars(false);
+    addLogs([
+      { text: `> Selected: ${instance.name}`, color: '#f59e0b' },
+      { text: `> Type: ${group.type}Model | Complexity: ${group.complexity}`, color: '#94a3b8' },
+    ]);
   };
 
   const handleCalculate = () => {
-    const { group, instance } = modal;
+    const { group, instance } = selected;
     const input = group.getInput(inputVals);
-    const info = instance.introduce();
+
     const complexity = instance.calculateComplexity(input);
     const params = instance.calculateTotalParameters(input);
-    setResult({ info, complexity, params, input });
+    const info = instance.introduce();
+
+    const comparisons = group.instances.map(inst => ({
+      name: inst.name,
+      complexity: inst.calculateComplexity(input),
+      params: inst.calculateTotalParameters(input),
+    }));
+
+    const maxComplexity = Math.max(...comparisons.map(c => Math.log10(c.complexity + 1)));
+    const maxParams = Math.max(...comparisons.map(c => Math.log10(c.params + 1)));
+
+    setResult({ info, complexity, params, input, group, comparisons, maxComplexity, maxParams });
+    setAnimatedBars(false);
+    setTimeout(() => setAnimatedBars(true), 50);
+
+    addLogs([
+      { text: `> Calling calculateComplexity(${JSON.stringify(input)})`, color: '#60a5fa' },
+      { text: `> Result: complexity = ${complexity.toLocaleString()}`, color: '#22c55e' },
+      { text: `> Calling calculateTotalParameters()`, color: '#60a5fa' },
+      { text: `> Result: params = ${params.toLocaleString()}`, color: '#22c55e' },
+      { text: `> Comparing all ${group.type} instances...`, color: '#f59e0b' },
+    ]);
   };
 
   return (
-    <div className="app">
-      <h1>AI Model OOP 시각화</h1>
-      <p className="subtitle">모델 카드를 클릭하면 인스턴스를 선택하고 값을 입력할 수 있습니다</p>
+    <div className="dashboard">
+      <div className="grid-bg" />
 
-      {/* 상속 구조 */}
-      <div className="hierarchy">
-        <div className="node adt">AIModelADT (추상)</div>
-        <div className="arrow">↓</div>
-        <div className="node base">BaseModel</div>
-        <div className="arrow">↓</div>
+      {/* 좌측 패널 */}
+      <div className="left-panel">
+        <div className="panel-header">
+          <div className="header-dot" />
+          <h1>AI Model OOP <span className="gradient-text">Visualizer</span></h1>
+          <p className="header-sub">Polymorphism & Inheritance Architecture</p>
+        </div>
 
-        <div className="model-groups">
-          {MODEL_GROUPS.map((group) => (
-            <div key={group.type} className="group-col">
-              <div className="group-label" style={{ borderColor: TYPE_COLORS[group.type], color: TYPE_COLORS[group.type] }}>
-                {group.type}Model
-              </div>
-              {group.instances.map((instance) => (
-                <div
-                  key={instance.name}
-                  className="instance-card"
-                  style={{ borderColor: TYPE_COLORS[group.type] }}
-                  onClick={() => openModal(group, instance)}
-                >
-                  {instance.name}
+        <div className="hierarchy">
+          <div className="node adt">
+            <span className="node-badge">Abstract</span>
+            AIModelADT
+          </div>
+          <div className="conn-line" />
+          <div className="node base">
+            <span className="node-badge">Base</span>
+            BaseModel
+          </div>
+          <div className="conn-line" />
+
+          <div className="model-groups">
+            {MODEL_GROUPS.map((group) => (
+              <div key={group.type} className="group-col">
+                <div className="group-label" style={{ borderColor: group.color, color: group.color }}>
+                  <span className="status-dot" style={{ background: group.color }} />
+                  {group.type}
                 </div>
-              ))}
-            </div>
-          ))}
+                <div className="complexity-badge">{group.complexity}</div>
+                {group.instances.map((instance) => {
+                  const isSelected = selected?.instance?.name === instance.name;
+                  return (
+                    <div
+                      key={instance.name}
+                      className={`instance-card ${isSelected ? 'active' : ''}`}
+                      style={{
+                        borderColor: isSelected ? group.color : 'rgba(255,255,255,0.08)',
+                        boxShadow: isSelected ? `0 0 16px ${group.color}55` : 'none',
+                      }}
+                      onClick={() => handleCardClick(group, instance)}
+                    >
+                      <span className="card-dot" style={{ background: group.color }} />
+                      <span className="card-name">{instance.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 모달 */}
-      {modal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>✕</button>
+      {/* 우측 패널 */}
+      <div className="right-panel">
 
-            {/* 공통 정보 */}
-            <h2 style={{ color: TYPE_COLORS[modal.group.type] }}>{modal.instance.name}</h2>
-            <div className="info-grid">
-              <div className="info-item"><span className="label">고안자</span><span className="value">{modal.instance.introduce().proposedBy}</span></div>
-              <div className="info-item"><span className="label">제안 연도</span><span className="value">{modal.instance.introduce().year}</span></div>
-              <div className="info-item"><span className="label">핵심 메커니즘</span><span className="value">{modal.instance.introduce().coreMechanism}</span></div>
+        {/* 컨트롤 패널 */}
+        <div className="control-panel">
+          <div className="panel-title">
+            <span className="panel-icon">⚙️</span> Control Panel
+          </div>
 
-  {/* CNN 고유 정보 */}
-  {modal.instance.introduce().outChannels && (
-    <>
-      <div className="info-item"><span className="label">필터 수 (out_channels)</span><span className="value">{modal.instance.introduce().outChannels}</span></div>
-      <div className="info-item"><span className="label">커널 크기</span><span className="value">{modal.instance.introduce().kernelSize}</span></div>
-      <div className="info-item"><span className="label">입력 타입</span><span className="value">{modal.instance.introduce().inputType}</span></div>
-    </>
-  )}
-
-  {/* RNN 고유 정보 */}
-  {modal.instance.introduce().hiddenStates && (
-    <div className="info-item"><span className="label">은닉층 크기 (hidden_states)</span><span className="value">{modal.instance.introduce().hiddenStates}</span></div>
-  )}
-
-  {/* Transformer 고유 정보 */}
-  {modal.instance.introduce().heads && (
-    <>
-      <div className="info-item"><span className="label">어텐션 헤드 수</span><span className="value">{modal.instance.introduce().heads}</span></div>
-      <div className="info-item"><span className="label">레이어 수</span><span className="value">{modal.instance.introduce().layers}</span></div>
-      <div className="info-item"><span className="label">은닉층 크기</span><span className="value">{modal.instance.introduce().hiddenSize}</span></div>
-    </>
-  )}
-
-  {/* GAN 고유 정보 */}
-  {modal.instance.introduce().latentDim && (
-    <>
-      <div className="info-item"><span className="label">노이즈 차원 (latent_dim)</span><span className="value">{modal.instance.introduce().latentDim}</span></div>
-      <div className="info-item"><span className="label">출력 차원 (output_dim)</span><span className="value">{modal.instance.introduce().outputDim}</span></div>
-      <div className="info-item"><span className="label">생성자 파라미터</span><span className="value">{modal.instance.introduce().paramsG}</span></div>
-      <div className="info-item"><span className="label">판별자 파라미터</span><span className="value">{modal.instance.introduce().paramsD}</span></div>
-    </>
-  )}
-</div>
-
-            {/* 입력 */}
-            <div className="input-section">
-              <h3>입력값 설정</h3>
-              {modal.group.inputFields.map((field) => (
-                <div key={field.key} className="input-row">
-                  <label>{field.label}</label>
-                  <input
-                    type="text"
-                    value={inputVals[field.key] ?? field.defaultValue}
-                    onChange={(e) => setInputVals({ ...inputVals, [field.key]: e.target.value })}
-                  />
+          {selected ? (() => {
+            // introduce() 한 번만 호출
+            const info = selected.instance.introduce();
+            const modelSpecificKeys = Object.keys(info).filter(
+              k => !['name', 'proposedBy', 'year', 'coreMechanism'].includes(k)
+            );
+            return (
+              <>
+                <div className="selected-info" style={{ borderColor: selected.group.color }}>
+                  <div className="selected-type" style={{ color: selected.group.color }}>
+                    {selected.group.type}Model
+                  </div>
+                  <div className="selected-name">{info.name}</div>
+                  <div className="selected-meta">
+                    {modelSpecificKeys.map(k => (
+                      <div key={k} className="meta-row">
+                        <span className="meta-key">{k}</span>
+                        <span className="meta-val">{String(info[k])}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-              <button className="calc-btn" style={{ backgroundColor: TYPE_COLORS[modal.group.type] }} onClick={handleCalculate}>
-                계산하기
-              </button>
+
+                <div className="info-rows">
+                  <div className="info-row"><span className="lbl">고안자</span><span className="val">{info.proposedBy}</span></div>
+                  <div className="info-row"><span className="lbl">연도</span><span className="val">{info.year}</span></div>
+                  <div className="info-row"><span className="lbl">메커니즘</span><span className="val">{info.coreMechanism}</span></div>
+                </div>
+
+                <div className="inputs">
+                  {selected.group.inputFields.map(f => (
+                    <div key={f.key} className="input-row">
+                      <label>{f.label}</label>
+                      <input
+                        type="text"
+                        value={inputVals[f.key] ?? f.defaultValue}
+                        onChange={e => setInputVals({ ...inputVals, [f.key]: e.target.value })}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    className="calc-btn"
+                    style={{ background: selected.group.color }}
+                    onClick={handleCalculate}
+                  >
+                    ▶ Run Polymorphic Call
+                  </button>
+                </div>
+              </>
+            );
+          })() : (
+            <div className="empty-state">← 왼쪽에서 인스턴스 카드를 클릭하세요</div>
+          )}
+        </div>
+
+        {/* 결과 & 차트 */}
+        {result && (
+          <div className="result-panel">
+            <div className="panel-title">
+              <span className="panel-icon">📊</span> Benchmark Results
+            </div>
+            <div className="result-rows">
+              <div className="result-row">
+                <span className="lbl">계산 복잡도</span>
+                <span className="val highlight">{result.complexity.toLocaleString()}</span>
+              </div>
+              <div className="result-row">
+                <span className="lbl">총 파라미터 수</span>
+                <span className="val highlight">{result.params.toLocaleString()}</span>
+              </div>
+              <div className="result-row">
+                <span className="lbl">입력 데이터</span>
+                <span className="val">{JSON.stringify(result.input)}</span>
+              </div>
             </div>
 
-            {/* 결과 */}
-            {result && (
-              <div className="result-section">
-                <div className="result-item highlight">
-                  <span className="label">입력 데이터</span>
-                  <span className="value">{JSON.stringify(result.input)}</span>
-                </div>
-                <div className="result-item highlight">
-                  <span className="label">계산 복잡도</span>
-                  <span className="value">{result.complexity.toLocaleString()}</span>
-                </div>
-                <div className="result-item highlight">
-                  <span className="label">총 파라미터 수</span>
-                  <span className="value">{result.params.toLocaleString()}</span>
-                </div>
-              </div>
-            )}
+            <div className="chart">
+              <div className="chart-title">Instance Comparison — {result.group.type}Model</div>
+
+              <div className="chart-section-label">Complexity</div>
+              {result.comparisons.map(c => {
+                const isSelected = c.name === result.info.name;
+                return (
+                  <div className="bar-item" key={c.name + '_complexity'}>
+                    <div className="bar-label">
+                      <span style={{ color: isSelected ? result.group.color : '#64748b' }}>
+                        {isSelected ? '▶ ' : ''}{c.name}
+                      </span>
+                      <span>{c.complexity.toLocaleString()}</span>
+                    </div>
+                    <div className="bar-track">
+                      <div
+                        className="bar-fill"
+                        style={{
+                          width: animatedBars ? `${(Math.log10(c.complexity + 1) / result.maxComplexity) * 100}%` : '0%',
+                          background: isSelected ? result.group.color : 'rgba(255,255,255,0.15)',
+                          boxShadow: isSelected ? `0 0 10px ${result.group.color}88` : 'none',
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="chart-section-label" style={{ marginTop: '12px' }}>Parameters</div>
+              {result.comparisons.map(c => {
+                const isSelected = c.name === result.info.name;
+                return (
+                  <div className="bar-item" key={c.name + '_params'}>
+                    <div className="bar-label">
+                      <span style={{ color: isSelected ? result.group.color : '#64748b' }}>
+                        {isSelected ? '▶ ' : ''}{c.name}
+                      </span>
+                      <span>{c.params.toLocaleString()}</span>
+                    </div>
+                    <div className="bar-track">
+                      <div
+                        className="bar-fill"
+                        style={{
+                          width: animatedBars ? `${(Math.log10(c.params + 1) / result.maxParams) * 100}%` : '0%',
+                          background: isSelected ? '#a78bfa' : 'rgba(255,255,255,0.15)',
+                          boxShadow: isSelected ? '0 0 10px #a78bfa88' : 'none',
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 콘솔 */}
+        <div className="console-panel">
+          <div className="console-header">
+            <span className="console-dot red" />
+            <span className="console-dot yellow" />
+            <span className="console-dot green" />
+            <span className="console-title">Dynamic Binding Console</span>
+          </div>
+          <div className="console-body">
+            {consoleLogs.map((log, i) => (
+              <div key={i} className="console-line" style={{ color: log.color }}>{log.text}</div>
+            ))}
           </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 }
