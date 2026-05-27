@@ -1,38 +1,253 @@
-.App {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0f1117;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-size: 2rem;
   text-align: center;
+  color: #ffffff;
+  margin-bottom: 8px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 40px;
+  font-size: 0.95rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* 상속 구조 */
+.hierarchy {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
+}
+
+.node {
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.adt {
+  background-color: #1e1e2e;
+  border: 2px dashed #7c3aed;
+  color: #a78bfa;
+  width: 220px;
+}
+
+.base {
+  background-color: #1e1e2e;
+  border: 2px solid #2563eb;
+  color: #60a5fa;
+  width: 220px;
+}
+
+.arrow {
+  color: #555;
+  font-size: 1.4rem;
+}
+
+/* 모델 그룹 */
+.model-groups {
+  display: flex;
+  gap: 16px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-wrap: wrap;
+  margin-top: 8px;
 }
 
-.App-link {
-  color: #61dafb;
+.group-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.group-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 2px solid;
+  border-radius: 8px;
+  padding: 6px 16px;
+  background-color: #1e1e2e;
+}
+
+.instance-card {
+  background-color: #1e1e2e;
+  border: 1.5px solid;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #d1d5db;
+  cursor: pointer;
+  width: 160px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.instance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+/* 모달 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #1a1a2e;
+  border: 1px solid #374151;
+  border-radius: 16px;
+  padding: 32px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+.modal h2 {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+
+/* 공통 정보 */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #111827;
+  border-radius: 8px;
+}
+
+/* 입력 섹션 */
+.input-section h3 {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.input-row label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.input-row input {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.input-row input:focus {
+  border-color: #6366f1;
+}
+
+.calc-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+
+.calc-btn:hover {
+  opacity: 0.85;
+}
+
+/* 결과 섹션 */
+.result-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #111827;
+  border-radius: 8px;
+}
+
+.result-item.highlight {
+  border-left: 3px solid #6366f1;
+}
+
+.label {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.value {
+  color: #e0e0e0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-all;
 }

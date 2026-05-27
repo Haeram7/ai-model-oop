@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 # Getting Started with Create React App
+
+20233148 우해람
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -68,3 +71,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+=======
+# ai-model-oop
+>>>>>>> a80d10a2f8234e723c6fb0de1b9e6261a82aaafa
