@@ -10,6 +10,7 @@ const MODEL_GROUPS = [
     type: 'CNN',
     color: '#3b82f6',
     complexity: 'O(H·W·C·K²)',
+    complexityDesc: { H: '이미지 높이', W: '이미지 너비', C: '입력 채널 수', K: '커널 크기' },
     instances: [
       new CNNModel("CNN_Edge_Detector", 16, 3),
       new CNNModel("CNN_Vision_Pro", 64, 3),
@@ -26,10 +27,11 @@ const MODEL_GROUPS = [
     type: 'RNN',
     color: '#22c55e',
     complexity: 'O(T·H²)',
+    complexityDesc: { T: '입력 시퀀스 길이 (토큰 수)', H: '은닉층 크기' },
     instances: [
-      new RNNModel("RNN_Small_Bot", 64),
-      new RNNModel("RNN_Standard_Chat", 256),
-      new RNNModel("RNN_Heavy_Translator", 1024),
+      new RNNModel("RNN_Seq_Tiny", 64),
+      new RNNModel("RNN_Seq_Base", 256),
+      new RNNModel("RNN_Seq_Large", 1024),
     ],
     inputFields: [
       { key: 'sentence', label: '문장 입력', defaultValue: 'I love deep learning' },
@@ -40,6 +42,7 @@ const MODEL_GROUPS = [
     type: 'Transformer',
     color: '#f59e0b',
     complexity: 'O(T²·H)',
+    complexityDesc: { T: '입력 시퀀스 길이 (토큰 수)', H: '은닉층 크기' },
     instances: [
       new TransformerModel("Transformer_Nano", 4, 2, 128),
       new TransformerModel("Transformer_Base", 8, 6, 512),
@@ -54,6 +57,7 @@ const MODEL_GROUPS = [
     type: 'GAN',
     color: '#ef4444',
     complexity: 'O(P·B)',
+    complexityDesc: { P: '총 파라미터 수 (G+D)', B: '배치 크기 (생성 이미지 수)' },
     instances: [
       new GANModel("GAN_Pixel_Art", 50, 128, 784),
       new GANModel("GAN_DeepFake_Base", 100, 256, 1024),
@@ -99,7 +103,6 @@ export default function App() {
   const handleCalculate = () => {
     const { group, instance } = selected;
     const input = group.getInput(inputVals);
-
     const complexity = instance.calculateComplexity(input);
     const params = instance.calculateTotalParameters(input);
     const info = instance.introduce();
@@ -150,6 +153,12 @@ export default function App() {
           </div>
           <div className="conn-line" />
 
+          <div className="branch-lines">
+            {MODEL_GROUPS.map((group) => (
+              <div key={group.type} className="branch-line" />
+            ))}
+          </div>
+
           <div className="model-groups">
             {MODEL_GROUPS.map((group) => (
               <div key={group.type} className="group-col">
@@ -167,6 +176,7 @@ export default function App() {
                       style={{
                         borderColor: isSelected ? group.color : 'rgba(255,255,255,0.08)',
                         boxShadow: isSelected ? `0 0 16px ${group.color}55` : 'none',
+                        '--glow-color': group.color,
                       }}
                       onClick={() => handleCardClick(group, instance)}
                     >
@@ -191,7 +201,6 @@ export default function App() {
           </div>
 
           {selected ? (() => {
-            // introduce() 한 번만 호출
             const info = selected.instance.introduce();
             const modelSpecificKeys = Object.keys(info).filter(
               k => !['name', 'proposedBy', 'year', 'coreMechanism'].includes(k)
@@ -217,6 +226,18 @@ export default function App() {
                   <div className="info-row"><span className="lbl">고안자</span><span className="val">{info.proposedBy}</span></div>
                   <div className="info-row"><span className="lbl">연도</span><span className="val">{info.year}</span></div>
                   <div className="info-row"><span className="lbl">메커니즘</span><span className="val">{info.coreMechanism}</span></div>
+                </div>
+
+                <div className="complexity-desc">
+                  <div className="complexity-desc-title">
+                    시간 복잡도 {selected.group.complexity} 표기 설명
+                  </div>
+                  {Object.entries(selected.group.complexityDesc).map(([symbol, desc]) => (
+                    <div key={symbol} className="complexity-desc-row">
+                      <span className="complexity-symbol" style={{ color: selected.group.color }}>{symbol}</span>
+                      <span className="complexity-desc-text">{desc}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="inputs">
@@ -271,12 +292,12 @@ export default function App() {
 
               <div className="chart-section-label">Complexity</div>
               {result.comparisons.map(c => {
-                const isSelected = c.name === result.info.name;
+                const isActive = c.name === result.info.name;
                 return (
                   <div className="bar-item" key={c.name + '_complexity'}>
                     <div className="bar-label">
-                      <span style={{ color: isSelected ? result.group.color : '#64748b' }}>
-                        {isSelected ? '▶ ' : ''}{c.name}
+                      <span style={{ color: isActive ? result.group.color : '#64748b' }}>
+                        {isActive ? '▶ ' : ''}{c.name}
                       </span>
                       <span>{c.complexity.toLocaleString()}</span>
                     </div>
@@ -285,8 +306,8 @@ export default function App() {
                         className="bar-fill"
                         style={{
                           width: animatedBars ? `${(Math.log10(c.complexity + 1) / result.maxComplexity) * 100}%` : '0%',
-                          background: isSelected ? result.group.color : 'rgba(255,255,255,0.15)',
-                          boxShadow: isSelected ? `0 0 10px ${result.group.color}88` : 'none',
+                          background: isActive ? result.group.color : 'rgba(255,255,255,0.15)',
+                          boxShadow: isActive ? `0 0 10px ${result.group.color}88` : 'none',
                         }}
                       />
                     </div>
@@ -296,12 +317,12 @@ export default function App() {
 
               <div className="chart-section-label" style={{ marginTop: '12px' }}>Parameters</div>
               {result.comparisons.map(c => {
-                const isSelected = c.name === result.info.name;
+                const isActive = c.name === result.info.name;
                 return (
                   <div className="bar-item" key={c.name + '_params'}>
                     <div className="bar-label">
-                      <span style={{ color: isSelected ? result.group.color : '#64748b' }}>
-                        {isSelected ? '▶ ' : ''}{c.name}
+                      <span style={{ color: isActive ? result.group.color : '#64748b' }}>
+                        {isActive ? '▶ ' : ''}{c.name}
                       </span>
                       <span>{c.params.toLocaleString()}</span>
                     </div>
@@ -310,8 +331,8 @@ export default function App() {
                         className="bar-fill"
                         style={{
                           width: animatedBars ? `${(Math.log10(c.params + 1) / result.maxParams) * 100}%` : '0%',
-                          background: isSelected ? '#a78bfa' : 'rgba(255,255,255,0.15)',
-                          boxShadow: isSelected ? '0 0 10px #a78bfa88' : 'none',
+                          background: isActive ? '#a78bfa' : 'rgba(255,255,255,0.15)',
+                          boxShadow: isActive ? '0 0 10px #a78bfa88' : 'none',
                         }}
                       />
                     </div>
