@@ -25,7 +25,8 @@ export class GANModel extends BaseModel {
     return this._totalParams * inputData.length;
   }
 
-  calculateTotalParameters() {
+  // 부모 인터페이스 규격과 일치시키기 위해 inputData 매개변수 바인딩
+  calculateTotalParameters(inputData) {
     return this._totalParams;
   }
 }
