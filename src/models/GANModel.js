@@ -22,10 +22,12 @@ export class GANModel extends BaseModel {
   }
 
   calculateComplexity(inputData) {
-    return this._totalParams * inputData.length;
+    const batchSize = inputData && inputData.length ? inputData.length : 1;
+    return this._totalParams * batchSize;
   }
 
-  calculateTotalParameters() {
+  // 인터페이스 규격을 일치시키기 위해 매개변수 inputData 명시
+  calculateTotalParameters(inputData) {
     return this._totalParams;
   }
 }

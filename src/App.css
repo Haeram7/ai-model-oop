@@ -13,14 +13,15 @@ body {
   overflow: hidden;
 }
 
-/* 모노스페이스 폰트 변수처럼 통일 */
+/* 모노스페이스 폰트 일관성 적용 */
 .card-name,
 .meta-val,
 .selected-name,
 .input-row input,
 .console-line,
 .val.highlight,
-.complexity-badge {
+.complexity-badge,
+.chart-badge {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
@@ -45,7 +46,7 @@ body {
   z-index: 0;
 }
 
-/* 좌측 패널 */
+/* 좌측 패널 (상속 계층도) */
 .left-panel {
   width: 50%;
   height: 100vh;
@@ -100,7 +101,7 @@ h1 {
   letter-spacing: 0.5px;
 }
 
-/* 상속 계층 */
+/* 상속 계층 노드 */
 .hierarchy {
   display: flex;
   flex-direction: column;
@@ -133,18 +134,10 @@ h1 {
   border: none;
   outline: 1.5px solid #7c3aed;
   outline-offset: -1px;
-  background-image: repeating-linear-gradient(
-    0deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px
-  ),
-  repeating-linear-gradient(
-    90deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px
-  ),
-  repeating-linear-gradient(
-    180deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px
-  ),
-  repeating-linear-gradient(
-    270deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px
-  );
+  background-image: repeating-linear-gradient(0deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px),
+                    repeating-linear-gradient(90deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px),
+                    repeating-linear-gradient(180deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px),
+                    repeating-linear-gradient(270deg, #7c3aed, #7c3aed 4px, transparent 4px, transparent 8px);
   background-size: 1.5px 100%, 100% 1.5px, 1.5px 100%, 100% 1.5px;
   background-position: 0 0, 0 0, 100% 0, 0 100%;
   background-repeat: no-repeat;
@@ -180,7 +173,32 @@ h1 {
   background: linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
 }
 
-/* 모델 그룹 */
+/* 트리 분기선 */
+.branch-lines {
+  display: flex;
+  justify-content: space-between;
+  width: 85%;
+  position: relative;
+  height: 24px;
+}
+
+.branch-lines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+}
+
+.branch-line {
+  width: 1.5px;
+  height: 100%;
+  background: rgba(255,255,255,0.15);
+}
+
+/* 모델 컬럼 그룹 */
 .model-groups {
   display: flex;
   gap: 12px;
@@ -195,7 +213,7 @@ h1 {
   align-items: center;
   gap: 8px;
   flex: 1;
-  min-width: 150px;
+  min-width: 140px;
   max-width: 185px;
 }
 
@@ -228,10 +246,10 @@ h1 {
   font-weight: 400;
 }
 
-/* 인스턴스 카드 */
+/* 인스턴스 카드 인터랙션 */
 .instance-card {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 11px 13px;
   font-size: 0.78rem;
@@ -239,7 +257,7 @@ h1 {
   cursor: pointer;
   width: 100%;
   text-align: left;
-  transition: all 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -258,6 +276,7 @@ h1 {
   background: rgba(255,255,255,0.12);
   animation: cardGlow 1.5s ease-in-out infinite;
 }
+
 @keyframes cardGlow {
   0%, 100% { box-shadow: 0 0 8px var(--glow-color, rgba(255,255,255,0.3)); }
   50% { box-shadow: 0 0 20px var(--glow-color, rgba(255,255,255,0.5)); }
@@ -275,7 +294,7 @@ h1 {
   word-break: break-all;
 }
 
-/* 우측 패널 */
+/* 우측 패널 (제어창 및 런타임 출력) */
 .right-panel {
   width: 50%;
   height: 100vh;
@@ -292,7 +311,7 @@ h1 {
 .right-panel::-webkit-scrollbar-track { background: transparent; }
 .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-/* 패널 공통 */
+/* 패널 공통 정의 */
 .panel-title {
   font-size: 0.78rem;
   color: #64748b;
@@ -377,7 +396,44 @@ h1 {
 .lbl { color: #94a3b8; }
 .val { color: #f1f5f9; font-size: 0.78rem; text-align: right; max-width: 60%; }
 
-/* 입력 */
+/* 수식 설명 도큐먼트 박스 */
+.complexity-desc {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.complexity-desc-title {
+  font-size: 0.72rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.complexity-desc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+}
+
+.complexity-symbol {
+  font-weight: 700;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.complexity-desc-text {
+  color: #94a3b8;
+}
+
+/* 데이터 입력 필드 */
 .inputs { display: flex; flex-direction: column; gap: 10px; }
 
 .input-row {
@@ -399,7 +455,7 @@ h1 {
   color: #e2e8f0;
   font-size: 0.85rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .input-row input:focus {
@@ -422,9 +478,9 @@ h1 {
 }
 
 .calc-btn:hover {
-  opacity: 0.85;
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 
 /* 결과 패널 */
@@ -463,10 +519,13 @@ h1 {
   font-weight: 700;
 }
 
-/* 차트 */
+/* 차트 시각화 레이아웃 */
 .chart { display: flex; flex-direction: column; gap: 12px; }
 
 .chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 0.72rem;
   color: #475569;
   text-transform: uppercase;
@@ -474,12 +533,24 @@ h1 {
   margin-bottom: 4px;
 }
 
+/* [개선] 로그 스케일 왜곡 방지 라벨 클래스화 */
+.chart-badge {
+  font-size: 0.62rem;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .chart-section-label {
   font-size: 0.72rem;
   color: #475569;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .bar-item { display: flex; flex-direction: column; gap: 5px; }
@@ -504,13 +575,12 @@ h1 {
   transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 콘솔 */
+/* 런타임 가상 바인딩 콘솔 */
 .console-panel {
   background: #080f1a;
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 14px;
   overflow: hidden;
-  flex: 1;
   min-height: 160px;
   display: flex;
   flex-direction: column;
@@ -523,6 +593,7 @@ h1 {
   padding: 10px 14px;
   background: rgba(255,255,255,0.03);
   border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
 }
 
 .console-dot {
@@ -557,65 +628,4 @@ h1 {
 .console-line {
   font-size: 0.75rem;
   line-height: 1.5;
-}
-
-.branch-lines {
-  display: flex;
-  justify-content: space-between;
-  width: 85%;
-  position: relative;
-  height: 24px;
-}
-
-.branch-lines::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255,255,255,0.15);
-}
-
-.branch-line {
-  width: 1.5px;
-  height: 100%;
-  background: rgba(255,255,255,0.15);
-}
-
-.complexity-desc {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.complexity-desc-title {
-  font-size: 0.72rem;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 4px;
-}
-
-.complexity-desc-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.78rem;
-}
-
-.complexity-symbol {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  width: 20px;
-  flex-shrink: 0;
-}
-
-.complexity-desc-text {
-  color: #94a3b8;
 }

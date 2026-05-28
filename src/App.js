@@ -123,7 +123,7 @@ export default function App() {
     addLogs([
       { text: `> Calling calculateComplexity(${JSON.stringify(input)})`, color: '#60a5fa' },
       { text: `> Result: complexity = ${complexity.toLocaleString()}`, color: '#22c55e' },
-      { text: `> Calling calculateTotalParameters()`, color: '#60a5fa' },
+      { text: `> Calling calculateTotalParameters(${JSON.stringify(input)})`, color: '#60a5fa' },
       { text: `> Result: params = ${params.toLocaleString()}`, color: '#22c55e' },
       { text: `> Comparing all ${group.type} instances...`, color: '#f59e0b' },
     ]);
@@ -288,7 +288,11 @@ export default function App() {
             </div>
 
             <div className="chart">
-              <div className="chart-title">Instance Comparison — {result.group.type}Model</div>
+              <div className="chart-title">
+                <span>Instance Comparison — {result.group.type}Model</span>
+                <span className="chart-badge">* Logarithmic Scale</span>
+              </div>
+            <div className="chart-section-label">Complexity</div>
 
               <div className="chart-section-label">Complexity</div>
               {result.comparisons.map(c => {
