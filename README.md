@@ -1,76 +1,19 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# AI Model OOP Visualizer
 
-20233148 우해람
+- 학번: 20233148
+- 이름: 우해람
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 과제 2 - OOP 설계 기반 인터랙티브 웹앱
 
-## Available Scripts
+Python으로 구현한 AI 모델 OOP 구조(AIModelADT → BaseModel → CNN/RNN/Transformer/GAN)를
+React 웹앱으로 시각화한 인터랙티브 벤치마크 대시보드입니다.
 
-In the project directory, you can run:
+## 주요 기능
+- 상속 계층 구조 시각화 (AIModelADT → BaseModel → 4개 모델)
+- 12개 인스턴스 클릭 시 다형성 메서드 실행 및 결과 출력
+- 같은 타입 인스턴스 간 복잡도/파라미터 수 비교 차트 (로그 스케일)
+- Dynamic Binding Console로 메서드 호출 과정 실시간 출력
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# ai-model-oop
->>>>>>> a80d10a2f8234e723c6fb0de1b9e6261a82aaafa
+## Links
+- GitHub: https://github.com/Haeram7/ai-model-oop
+- Vercel: 추후 업데이트 예정
