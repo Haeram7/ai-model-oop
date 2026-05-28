@@ -72,6 +72,35 @@ const MODEL_GROUPS = [
 
 const MAX_CONSOLE_LINES = 20;
 
+// 숫자 카운트업 훅
+function useCountUp(target, duration = 800) {
+  const [current, setCurrent] = useState(0);
+  useEffect(() => {
+    if (target === 0) return;
+    const steps = 40;
+    const increment = target / steps;
+    const interval = duration / steps;
+    let step = 0;
+    setCurrent(0);
+    const timer = setInterval(() => {
+      step++;
+      if (step >= steps) {
+        setCurrent(target);
+        clearInterval(timer);
+      } else {
+        setCurrent(Math.floor(increment * step));
+      }
+    }, interval);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  return current;
+}
+
+function AnimatedNumber({ value }) {
+  const count = useCountUp(value);
+  return <span>{count.toLocaleString()}</span>;
+}
+
 export default function App() {
   const [selected, setSelected] = useState(null);
   const [inputVals, setInputVals] = useState({});
@@ -82,6 +111,8 @@ export default function App() {
     { text: '> Click an instance card to begin.', color: '#94a3b8' },
   ]);
   const [animatedBars, setAnimatedBars] = useState(false);
+  const [beamActive, setBeamActive] = useState(false);
+  const [columnFlowType, setColumnFlowType] = useState(null);
   const consoleBodyRef = useRef(null);
 
   useEffect(() => {
@@ -95,20 +126,24 @@ export default function App() {
   };
 
   const handleCardClick = (group, instance) => {
-  // 이미 선택된 카드 클릭 시 무시
-  if (selected?.instance?.name === instance.name) return;
-  
-  const defaults = {};
-  group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
-  setSelected({ group, instance });
-  setInputVals(defaults);
-  setResult(null);
-  setAnimatedBars(false);
-  addLogs([
-    { text: `> Selected: ${instance.name}`, color: '#f59e0b' },
-    { text: `> Type: ${group.type}Model | Complexity: ${group.complexity}`, color: '#94a3b8' },
-  ]);
-};
+    if (selected?.instance?.name === instance.name) return;
+    const defaults = {};
+    group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
+    setSelected({ group, instance });
+    setInputVals(defaults);
+    setResult(null);
+    setAnimatedBars(false);
+    setBeamActive(false);
+
+    // 컬럼 흐름 애니메이션
+    setColumnFlowType(group.type);
+    setTimeout(() => setColumnFlowType(null), 1000);
+
+    addLogs([
+      { text: `> Selected: ${instance.name}`, color: '#f59e0b' },
+      { text: `> Type: ${group.type}Model | Complexity: ${group.complexity}`, color: '#94a3b8' },
+    ]);
+  };
 
   const handleCalculate = () => {
     const { group, instance } = selected;
@@ -125,6 +160,10 @@ export default function App() {
 
     const maxComplexity = Math.max(...comparisons.map(c => Math.log10(c.complexity + 1)));
     const maxParams = Math.max(...comparisons.map(c => Math.log10(c.params + 1)));
+
+    // beam 애니메이션
+    setBeamActive(true);
+    setTimeout(() => setBeamActive(false), 800);
 
     setResult({ info, complexity, params, input, group, comparisons, maxComplexity, maxParams });
     setAnimatedBars(false);
@@ -177,33 +216,40 @@ export default function App() {
           </div>
 
           <div className="model-groups">
-            {MODEL_GROUPS.map((group) => (
-              <div key={group.type} className="group-col">
-                <div className="group-label" style={{ borderColor: group.color, color: group.color }}>
-                  <span className="status-dot" style={{ background: group.color }} />
-                  {group.type}
+            {MODEL_GROUPS.map((group) => {
+              const isActiveCol = columnFlowType === group.type;
+              return (
+                <div
+                  key={group.type}
+                  className={`group-col ${isActiveCol ? 'col-flow' : ''}`}
+                  style={{ '--col-color': group.color }}
+                >
+                  <div className="group-label" style={{ borderColor: group.color, color: group.color }}>
+                    <span className="status-dot" style={{ background: group.color }} />
+                    {group.type}
+                  </div>
+                  <div className="complexity-badge">{group.complexity}</div>
+                  {group.instances.map((instance) => {
+                    const isSelected = selected?.instance?.name === instance.name;
+                    return (
+                      <div
+                        key={instance.name}
+                        className={`instance-card ${isSelected ? 'active' : ''}`}
+                        style={{
+                          borderColor: isSelected ? group.color : 'rgba(255,255,255,0.08)',
+                          boxShadow: isSelected ? `0 0 16px ${group.color}55` : 'none',
+                          '--glow-color': group.color,
+                        }}
+                        onClick={() => handleCardClick(group, instance)}
+                      >
+                        <span className="card-dot" style={{ background: group.color }} />
+                        <span className="card-name">{instance.name}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="complexity-badge">{group.complexity}</div>
-                {group.instances.map((instance) => {
-                  const isSelected = selected?.instance?.name === instance.name;
-                  return (
-                    <div
-                      key={instance.name}
-                      className={`instance-card ${isSelected ? 'active' : ''}`}
-                      style={{
-                        borderColor: isSelected ? group.color : 'rgba(255,255,255,0.08)',
-                        boxShadow: isSelected ? `0 0 16px ${group.color}55` : 'none',
-                        '--glow-color': group.color,
-                      }}
-                      onClick={() => handleCardClick(group, instance)}
-                    >
-                      <span className="card-dot" style={{ background: group.color }} />
-                      <span className="card-name">{instance.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -269,7 +315,7 @@ export default function App() {
                     </div>
                   ))}
                   <button
-                    className="calc-btn"
+                    className={`calc-btn ${beamActive ? 'beam-active' : ''}`}
                     style={{ background: selected.group.color }}
                     onClick={handleCalculate}
                   >
@@ -292,11 +338,15 @@ export default function App() {
             <div className="result-rows">
               <div className="result-row">
                 <span className="lbl">계산 복잡도</span>
-                <span className="val highlight">{result.complexity.toLocaleString()}</span>
+                <span className="val highlight">
+                  <AnimatedNumber value={result.complexity} />
+                </span>
               </div>
               <div className="result-row">
                 <span className="lbl">총 파라미터 수</span>
-                <span className="val highlight">{result.params.toLocaleString()}</span>
+                <span className="val highlight">
+                  <AnimatedNumber value={result.params} />
+                </span>
               </div>
               <div className="result-row">
                 <span className="lbl">입력 데이터</span>
@@ -377,7 +427,12 @@ export default function App() {
           </div>
           <div className="console-body" ref={consoleBodyRef}>
             {consoleLogs.map((log, i) => (
-              <div key={i} className="console-line" style={{ color: log.color }}>{log.text}</div>
+              <div key={i} className="console-line" style={{ color: log.color }}>
+                {log.text}
+                {i === consoleLogs.length - 1 && (
+                  <span className="console-cursor">_</span>
+                )}
+              </div>
             ))}
           </div>
         </div>

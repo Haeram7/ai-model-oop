@@ -14,11 +14,10 @@ export class RNNModel extends BaseModel {
   }
 
   calculateComplexity(inputData) {
-    const T = inputData && inputData.length ? inputData.length : 1;
-    return T * (this._hiddenStates ** 2);
+    return inputData.length * (this._hiddenStates ** 2);
   }
 
-  // 인터페이스 규격을 일치시키기 위해 매개변수 inputData 명시
+  // 부모 인터페이스 규격과 일치시키기 위해 inputData 매개변수 바인딩
   calculateTotalParameters(inputData) {
     return this._hiddenStates * (this._hiddenStates + this._hiddenStates + 1);
   }

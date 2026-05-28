@@ -697,3 +697,49 @@ h1 {
   font-size: 0.75rem;
   line-height: 1.5;
 }
+
+/* 컬럼 흐름 애니메이션 */
+.col-flow {
+  animation: colFlow 1s ease forwards;
+}
+
+@keyframes colFlow {
+  0% { filter: brightness(1); }
+  30% { filter: brightness(1.4) drop-shadow(0 0 12px var(--col-color)); }
+  100% { filter: brightness(1); }
+}
+
+/* 버튼 beam 효과 */
+.calc-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.calc-btn.beam-active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: beam 0.8s ease forwards;
+}
+
+@keyframes beam {
+  0% { left: -60%; }
+  100% { left: 150%; }
+}
+
+/* 콘솔 커서 깜빡임 */
+.console-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: cursorBlink 1s infinite;
+  color: #22c55e;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
