@@ -18,4 +18,4 @@ React 웹앱으로 시각화한 인터랙티브 벤치마크 대시보드입니�
 
 ## Links
 - GitHub: https://github.com/Haeram7/ai-model-oop
-- Vercel: 추후 업데이트 예정
+- Vercel: https://ai-model-oop.vercel.app
