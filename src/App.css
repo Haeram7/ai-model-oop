@@ -8,7 +8,7 @@
 
 body {
   background-color: #0d1f35;
-  color: #e2e8f0;
+  color: #f1f5f9;
   font-family: 'Inter', 'Segoe UI', sans-serif;
   overflow: hidden;
 }
@@ -21,7 +21,8 @@ body {
 .console-line,
 .val.highlight,
 .complexity-badge,
-.chart-badge {
+.chart-badge,
+.interface-item {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
@@ -46,12 +47,12 @@ body {
   z-index: 0;
 }
 
-/* 좌측 패널 (상속 계층도) */
+/* 좌측 패널 (상속 계층도) - 60% 스크린 */
 .left-panel {
-  width: 50%;
+  width: 60%;
   height: 100vh;
   overflow-y: auto;
-  padding: 28px 24px;
+  padding: 40px 32px;
   border-right: 1px solid rgba(255,255,255,0.06);
   position: relative;
   z-index: 1;
@@ -63,16 +64,16 @@ body {
 
 /* 헤더 */
 .panel-header {
-  margin-bottom: 28px;
+  margin-bottom: 40px;
 }
 
 .header-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: #22c55e;
   border-radius: 50%;
-  margin-bottom: 10px;
-  box-shadow: 0 0 8px #22c55e;
+  margin-bottom: 12px;
+  box-shadow: 0 0 10px #22c55e;
   animation: blink 2s infinite;
 }
 
@@ -82,7 +83,7 @@ body {
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 700;
   color: #f1f5f9;
   letter-spacing: -0.5px;
@@ -95,36 +96,38 @@ h1 {
 }
 
 .header-sub {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 6px;
   letter-spacing: 0.5px;
 }
 
-/* 상속 계층 노드 */
+/* 상속 계층 컨테이너 */
 .hierarchy {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
+  width: 100%;
 }
 
+/* [★강조 수정★] 최상위 부모 노드들의 폰트 크기를 하위 그룹과 동일하게 1.25rem으로 확대 */
 .node {
-  padding: 10px 28px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  padding: 14px 44px; /* 가독성에 맞춰 패딩 확장 */
+  border-radius: 12px;
+  font-weight: 700;    /* 굵기 강조 */
+  font-size: 1.25rem;  /* 기존 1rem에서 1.25rem으로 상향하여 조화 유도 */
   text-align: center;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .node-badge {
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.75rem; /* 배지 글씨 크기도 노드에 맞춰 살짝 상향 */
+  padding: 3px 9px;
+  border-radius: 5px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -141,118 +144,165 @@ h1 {
   background-size: 1.5px 100%, 100% 1.5px, 1.5px 100%, 100% 1.5px;
   background-position: 0 0, 0 0, 100% 0, 0 100%;
   background-repeat: no-repeat;
-  color: #a78bfa;
+  color: #c4b5fd;
   animation: glowPulse 3s infinite;
 }
 
 .adt .node-badge {
   background: rgba(124,58,237,0.3);
-  color: #c4b5fd;
+  color: #e9e3ff;
 }
 
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(124,58,237,0.3); }
-  50% { box-shadow: 0 0 20px rgba(124,58,237,0.6); }
+  0%, 100% { box-shadow: 0 0 10px rgba(124,58,237,0.3); }
+  50% { box-shadow: 0 0 25px rgba(124,58,237,0.6); }
 }
 
 .base {
   background: rgba(37,99,235,0.12);
   border: 1.5px solid #2563eb;
-  color: #60a5fa;
-  box-shadow: 0 0 12px rgba(37,99,235,0.25);
+  color: #93c5fd;
+  box-shadow: 0 0 15px rgba(37,99,235,0.25);
 }
 
 .base .node-badge {
   background: rgba(37,99,235,0.3);
-  color: #93c5fd;
+  color: #dbeafe;
 }
 
 .conn-line {
-  width: 1px;
-  height: 20px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+  width: 1.5px;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
 }
 
-/* 트리 분기선 */
-.branch-lines {
+/* 오버라이딩 명세 박스 명세 */
+.base-interfaces {
+  margin-top: 8px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1.5px dashed rgba(37, 99, 235, 0.45);
+  border-radius: 12px;
+  padding: 16px 24px;
   display: flex;
-  justify-content: space-between;
-  width: 85%;
-  position: relative;
-  height: 24px;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  width: 390px;
 }
 
-.branch-lines::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255,255,255,0.15);
+.interface-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #60a5fa;
+  letter-spacing: -0.2px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(37, 99, 235, 0.25);
+  width: 100%;
+  padding-bottom: 6px;
+}
+
+.interface-item {
+  font-size: 0.9rem;
+  color: #93c5fd;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 트리 가지선 매핑 */
+.branch-lines {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  position: relative;
+  height: 32px;
 }
 
 .branch-line {
-  width: 1.5px;
+  width: 100%;
   height: 100%;
-  background: rgba(255,255,255,0.15);
+  position: relative;
 }
 
-/* 모델 컬럼 그룹 */
+.branch-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  background: rgba(255,255,255,0.2);
+  transform: translateX(-50%);
+}
+
+.branch-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(100% + 20px);
+  height: 1.5px;
+  background: rgba(255,255,255,0.2);
+}
+
+.branch-lines .branch-line:last-child::before {
+  display: none;
+}
+
+/* 하단 모델 컬럼 그룹 */
 .model-groups {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   width: 100%;
+  margin-top: 4px;
 }
 
 .group-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 140px;
-  max-width: 185px;
+  gap: 12px;
+  width: 100%;
 }
 
 .group-label {
   font-weight: 700;
-  font-size: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
   border: 1.5px solid;
-  border-radius: 8px;
-  padding: 7px 14px;
+  border-radius: 10px;
+  padding: 10px 14px;
   background: rgba(255,255,255,0.04);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   justify-content: center;
   letter-spacing: 0.3px;
 }
 
 .status-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   animation: blink 2s infinite;
 }
 
 .complexity-badge {
-  font-size: 0.72rem;
-  color: #64748b;
-  font-weight: 400;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-/* 인스턴스 카드 인터랙션 */
+/* 인스턴스 카드 */
 .instance-card {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 11px 13px;
-  font-size: 0.78rem;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 0.85rem;
   color: #cbd5e1;
   cursor: pointer;
   width: 100%;
@@ -260,15 +310,15 @@ h1 {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
   backdrop-filter: blur(8px);
 }
 
 .instance-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   background: rgba(255,255,255,0.11);
-  color: #e2e8f0;
-  border-color: rgba(255,255,255,0.2);
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
 }
 
 .instance-card.active {
@@ -278,31 +328,31 @@ h1 {
 }
 
 @keyframes cardGlow {
-  0%, 100% { box-shadow: 0 0 8px var(--glow-color, rgba(255,255,255,0.3)); }
-  50% { box-shadow: 0 0 20px var(--glow-color, rgba(255,255,255,0.5)); }
+  0%, 100% { box-shadow: 0 0 10px var(--glow-color, rgba(255,255,255,0.3)); }
+  50% { box-shadow: 0 0 22px var(--glow-color, rgba(255,255,255,0.5)); }
 }
 
 .card-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .card-name {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   word-break: break-all;
 }
 
 /* 우측 패널 (제어창 및 런타임 출력) */
 .right-panel {
-  width: 50%;
+  width: 40%;
   height: 100vh;
   overflow-y: auto;
-  padding: 28px 24px;
+  padding: 40px 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   position: relative;
   z-index: 1;
 }
@@ -311,10 +361,11 @@ h1 {
 .right-panel::-webkit-scrollbar-track { background: transparent; }
 .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-/* 패널 공통 정의 */
+/* 패널 공통 */
 .panel-title {
-  font-size: 0.78rem;
-  color: #64748b;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 14px;
@@ -335,7 +386,7 @@ h1 {
 }
 
 .empty-state {
-  color: #475569;
+  color: #64748b;
   font-size: 0.85rem;
   text-align: center;
   padding: 24px 0;
@@ -355,9 +406,9 @@ h1 {
 }
 
 .selected-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
   margin: 2px 0 8px;
 }
 
@@ -373,8 +424,12 @@ h1 {
   font-size: 0.75rem;
 }
 
-.meta-key { color: #475569; }
-.meta-val { color: #94a3b8; }
+.meta-key { color: #94a3b8; }
+.meta-val { 
+  color: #cbd5e1;
+  text-align: right;
+  word-break: break-all;
+}
 
 .info-rows {
   display: flex;
@@ -393,24 +448,32 @@ h1 {
   font-size: 0.8rem;
 }
 
-.lbl { color: #94a3b8; }
-.val { color: #f1f5f9; font-size: 0.78rem; text-align: right; max-width: 60%; }
+.lbl { color: #cbd5e1; }
+.val { 
+  color: #ffffff; 
+  font-weight: 600; 
+  font-size: 0.78rem; 
+  text-align: right; 
+  max-width: 60%; 
+  word-break: break-all;
+}
 
 /* 수식 설명 도큐먼트 박스 */
 .complexity-desc {
   background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .complexity-desc-title {
-  font-size: 0.72rem;
-  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 4px;
@@ -420,7 +483,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .complexity-symbol {
@@ -430,7 +493,7 @@ h1 {
 }
 
 .complexity-desc-text {
-  color: #94a3b8;
+  color: #f1f5f9;
 }
 
 /* 데이터 입력 필드 */
@@ -443,23 +506,24 @@ h1 {
 }
 
 .input-row label {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .input-row input {
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 7px;
   padding: 7px 10px;
-  color: #e2e8f0;
+  color: #ffffff;
   font-size: 0.85rem;
   outline: none;
   transition: border-color 0.2s, background-color 0.2s;
 }
 
 .input-row input:focus {
-  border-color: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.35);
   background: rgba(255,255,255,0.08);
 }
 
@@ -515,7 +579,7 @@ h1 {
 }
 
 .val.highlight {
-  color: #a78bfa;
+  color: #c4b5fd;
   font-weight: 700;
 }
 
@@ -526,28 +590,30 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.72rem;
-  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 4px;
 }
 
-/* [개선] 로그 스케일 왜곡 방지 라벨 클래스화 */
+/* 로그 스케일 왜곡 방지 배지 */
 .chart-badge {
-  font-size: 0.62rem;
-  color: #64748b;
-  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.65rem;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.08);
   padding: 2px 6px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-transform: none;
   letter-spacing: 0;
 }
 
 .chart-section-label {
   font-size: 0.72rem;
-  color: #475569;
+  font-weight: 700;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 2px;
@@ -558,8 +624,9 @@ h1 {
 .bar-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #cbd5e1;
 }
 
 .bar-track {
@@ -581,7 +648,7 @@ h1 {
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 14px;
   overflow: hidden;
-  min-height: 160px;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
 }
@@ -608,7 +675,8 @@ h1 {
 
 .console-title {
   font-size: 0.72rem;
-  color: #475569;
+  font-weight: 600;
+  color: #94a3b8;
   margin-left: 6px;
   letter-spacing: 0.5px;
 }

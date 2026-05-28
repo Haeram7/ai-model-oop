@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CNNModel } from './models/CNNModel';
 import { RNNModel } from './models/RNNModel';
 import { TransformerModel } from './models/TransformerModel';
@@ -82,23 +82,33 @@ export default function App() {
     { text: '> Click an instance card to begin.', color: '#94a3b8' },
   ]);
   const [animatedBars, setAnimatedBars] = useState(false);
+  const consoleBodyRef = useRef(null);
+
+  useEffect(() => {
+    if (consoleBodyRef.current) {
+      consoleBodyRef.current.scrollTop = consoleBodyRef.current.scrollHeight;
+    }
+  }, [consoleLogs]);
 
   const addLogs = (newLogs) => {
     setConsoleLogs(prev => [...prev, ...newLogs].slice(-MAX_CONSOLE_LINES));
   };
 
   const handleCardClick = (group, instance) => {
-    const defaults = {};
-    group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
-    setSelected({ group, instance });
-    setInputVals(defaults);
-    setResult(null);
-    setAnimatedBars(false);
-    addLogs([
-      { text: `> Selected: ${instance.name}`, color: '#f59e0b' },
-      { text: `> Type: ${group.type}Model | Complexity: ${group.complexity}`, color: '#94a3b8' },
-    ]);
-  };
+  // 이미 선택된 카드 클릭 시 무시
+  if (selected?.instance?.name === instance.name) return;
+  
+  const defaults = {};
+  group.inputFields.forEach(f => { defaults[f.key] = f.defaultValue; });
+  setSelected({ group, instance });
+  setInputVals(defaults);
+  setResult(null);
+  setAnimatedBars(false);
+  addLogs([
+    { text: `> Selected: ${instance.name}`, color: '#f59e0b' },
+    { text: `> Type: ${group.type}Model | Complexity: ${group.complexity}`, color: '#94a3b8' },
+  ]);
+};
 
   const handleCalculate = () => {
     const { group, instance } = selected;
@@ -151,8 +161,15 @@ export default function App() {
             <span className="node-badge">Base</span>
             BaseModel
           </div>
-          <div className="conn-line" />
 
+          <div className="base-interfaces">
+            <div className="interface-title">📋 Abstract Methods (하위 클래스 오버라이딩 필수)</div>
+            <div className="interface-item">🔤 introduce()</div>
+            <div className="interface-item">🧮 calculateComplexity(inputData)</div>
+            <div className="interface-item">⚙️ calculateTotalParameters(inputData)</div>
+          </div>
+
+          <div className="conn-line" />
           <div className="branch-lines">
             {MODEL_GROUPS.map((group) => (
               <div key={group.type} className="branch-line" />
@@ -283,7 +300,11 @@ export default function App() {
               </div>
               <div className="result-row">
                 <span className="lbl">입력 데이터</span>
-                <span className="val">{JSON.stringify(result.input)}</span>
+                <span className="val" title={JSON.stringify(result.input)}>
+                  {Array.isArray(result.input) && result.input.length > 5
+                    ? `[${result.input.slice(0, 5).map(v => typeof v === 'string' ? `"${v}"` : v).join(', ')}, ... 외 ${result.input.length - 5}개]`
+                    : JSON.stringify(result.input)}
+                </span>
               </div>
             </div>
 
@@ -292,7 +313,6 @@ export default function App() {
                 <span>Instance Comparison — {result.group.type}Model</span>
                 <span className="chart-badge">* Logarithmic Scale</span>
               </div>
-            <div className="chart-section-label">Complexity</div>
 
               <div className="chart-section-label">Complexity</div>
               {result.comparisons.map(c => {
@@ -355,7 +375,7 @@ export default function App() {
             <span className="console-dot green" />
             <span className="console-title">Dynamic Binding Console</span>
           </div>
-          <div className="console-body">
+          <div className="console-body" ref={consoleBodyRef}>
             {consoleLogs.map((log, i) => (
               <div key={i} className="console-line" style={{ color: log.color }}>{log.text}</div>
             ))}
